@@ -40,7 +40,6 @@ DEVICE_OPTIONS = [
     "cuda",
     "neuron",
     "cpu",
-    "openvino",
     "tpu",
     "xpu",
     "hpu",
@@ -339,9 +338,15 @@ class EngineArgs:
             'CoreWeave. See the Tensorize vLLM Model script in the Examples '
             'section for more information.\n'
             '* "runai_streamer" will load the Safetensors weights using Run:ai'
-            'Model Streamer \n'
+            'Model Streamer.\n'
             '* "bitsandbytes" will load the weights using bitsandbytes '
-            'quantization.\n')
+            'quantization.\n'
+            '* "sharded_state" will load weights from pre-sharded checkpoint '
+            'files, supporting efficient loading of tensor-parallel models\n'
+            '* "gguf" will load weights from GGUF format files (details '
+            'specified in https://github.com/ggml-org/ggml/blob/master/docs/gguf.md).\n'
+            '* "mistral" will load weights from consolidated safetensors files '
+            'used by Mistral models.\n')
         parser.add_argument(
             '--config-format',
             default=EngineArgs.config_format,
@@ -1480,7 +1485,9 @@ class EngineArgs:
             return False
 
         # Only support Xgrammar for guided decoding so far.
-        SUPPORTED_GUIDED_DECODING = ["xgrammar", "xgrammar:nofallback"]
+        SUPPORTED_GUIDED_DECODING = [
+            "xgrammar", "xgrammar:disable-any-whitespace"
+        ]
         if self.guided_decoding_backend not in SUPPORTED_GUIDED_DECODING:
             _raise_or_fallback(feature_name="--guided-decoding-backend",
                                recommend_to_remove=False)
